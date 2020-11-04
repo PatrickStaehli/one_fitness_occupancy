@@ -68,7 +68,7 @@ def request_all_centers():
     request_occupancy(centre_ids)
     
     print("Waiting 15 Minutes")
-    time.sleep(60)
+    time.sleep(60*15)
 
     
 while True:
