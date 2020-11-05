@@ -55,7 +55,7 @@ canvas {
 	position: absolute;
     left: 50%;
     transform: translate(-50%, -170%);
-    font-size: 25px;
+    font-size: 22px;
     bottom: 0;
 }
 .hyperspan
@@ -67,4 +67,43 @@ canvas {
     left:10%;
     top:25%;
     z-index:1;
+}
+
+@media screen and (min-width: 993px) {
+  p.location {
+    font-size: 22px;
+	transform: translate(-50%, -170%);
+  }
+  p.percent {
+  	transform: translate(-50%, -30%);
+  }
+}
+
+@media screen and (min-width: 769px) and (max-width: 992px) {
+  p.location {
+    font-size: 22px;
+	transform: translate(-40%, -170%);
+  }
+  p.percent {
+  	transform: translate(-20%, -30%);
+  }
+}
+
+@media screen and (min-width: 577px) and (max-width: 768px){
+  p.location {
+    font-size: 20px;
+	transform: translate(-40%, -200%);
+  }
+  p.percent {
+  	transform: translate(-50%, -30%);
+  }
+}
+@media screen and (max-width:  576px) {
+  p.location {
+    font-size: 20px;
+	transform: translate(-45%, -200%);
+  }
+  p.percent {
+  	transform: translate(-40%, -30%);
+  }
 }
