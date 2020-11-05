@@ -1,0 +1,259 @@
+<!-- Extend base.html template -->
+{% extends "base.html" %}
+
+
+
+<!-- Define the content of the one_occupancy page -->
+{% block main_content %}
+<div class="py-5 bg-light">
+  <!-- Current Occupancy Doughnut Charts-->
+  <div class="container">
+    <div class="card">
+	  <div class="card-header text-center">
+		<h3> Aktuelle Auslastung </h3>
+	  </div>
+	  <div class="card-body">
+		<div class="row">
+			<!-- Create a Doughnut Chart for each centre -->
+			{%for i in range(len)%} 
+			    <div class=" col-md-2 col-sm-3 col-4">
+					<div class="outer"> 
+						
+						<p class="location">
+							{{centres[i]}}    
+						</p>
+						<canvas id="doughnut_chart_centre{{i+1}}" width="100%" height="100%"></canvas>
+					     <p class="percent">
+					     {{current_occupancy_percent[i]}}
+					     </p>
+						 <a href = "#" onclick="update_history_chart({{centre_ids[i]}});"> 
+						 <span class="hyperspan"></span>
+						 </a>
+			    	</div>
+				</div>
+			{%endfor%} 
+		</div>
+	  </div>
+	</div>
+  </div>
+  <!-- END Current Occupancy Doughnut Charts-->
+  
+  <!-- Line plot of the history of the centre occupancy-->
+  <div class="container">
+    <div class="card">
+	  <div class="card-header text-center">
+		<h3 id="centre_history_occupancy_title"></h3>
+	  </div>
+	  <div class="card-body">
+		<div class="row">
+        	<canvas id="centre_history_occupancy_linechart" width="700"  height="200"></canvas>	
+		</div>
+	  </div>
+	</div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+	<!-- Load the required resources -->
+	<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.js'></script>
+	
+	<!-- Doughnut Chart-->
+	<script>
+	{%for i in range(len)%} 
+		var options{{i+1}} = {
+		  type: 'doughnut',
+		  data: {
+		    labels: ["Besucher", "Verfügbar"],
+		    datasets: [
+			   {
+	                label: '',
+	                data: [{{current_occupancy[i]}}, {{current_max_occupancy[i]}}],
+	                backgroundColor: [
+	                    'rgba({{current_color[i][0]}}, {{current_color[i][1]}}, {{current_color[i][2]}}, 0.2)',
+	                    'rgba(220,220,220, 0.2)'
+	                ],
+	                borderColor: [
+	                    'rgba({{current_color[i][0]}}, {{current_color[i][1]}}, {{current_color[i][2]}}, 1)',
+	                    'rgba(220,220,220 ,1)'
+	                ],
+	                borderWidth: 1
+		            }
+				]
+		  },
+		  options: {
+		   			rotation: 1 * Math.PI,
+		            circumference: 1 * Math.PI,
+		            legend: {
+		                display: false
+		            },
+		            tooltip: {
+		                enabled: false
+		            },
+		            cutoutPercentage: 80,
+					responsive: true,
+					tooltips: {
+						backgroundColor: 'rgba(0, 0, 0, 1)'
+						
+					}
+		  }
+		}
+	{%endfor%} 
+	
+		
+	{%for i in range(len)%} 
+	    var ctx{{i+1}} = document.getElementById('doughnut_chart_centre{{i+1}}').getContext('2d');
+		new Chart(ctx{{i+1}}, options{{i+1}});
+	{%endfor%} 
+
+	</script>
+
+
+	<!-- History Line Chart-->
+	<script>	
+	// Define the chart properties
+	var ctx = $("#centre_history_occupancy_linechart");
+	var history_occupancy_linechart = new Chart(ctx, {
+	  type: 'line',
+	  maintainAspectRatio: true,
+	  data: {
+	    labels : [],
+	    datasets: [{
+	      label: 'Hohe Auslastung',
+	      xAxisID:'xAxis1',
+		  backgroundColor : "rgba(230,76,60,0.2)",
+		  borderColor:"rgba(230,76,60,0.8)",
+		  pointRadius: 0,
+	      data:[]
+	    },
+		{
+		  label: 'Geringe Auslastung',
+		  backgroundColor : "rgba(50,205,50,0.2)",
+		  borderColor:"rgba(50,205,50,0.8)",
+		  pointRadius: 0,
+		  data: []
+		},
+		{
+		  label: 'Maximale Auslastung',
+	      xAxisID:'xAxis1',
+		  borderColor:"rgba(0,0,0,0.8)",
+		  backgroundColor : "rgba(0,0,0,0)",
+		  pointRadius: 0,
+	      data: []
+		}
+		]
+	  },
+	  options:{
+		scales:{
+	      xAxes:[
+			{
+	          id:'xAxis1',
+	          type:"category",
+	          ticks:{
+	            callback:function(label){
+	              var time = label.split(";")[0];
+	              var day = label.split(";")[1];
+	              return time;
+	            }
+	          },
+			  autoSkip: true
+	        },
+	        {
+	          id:'xAxis2',
+	          type:"category",
+	          scaleFontSize: 100,
+			  gridLines: {
+	            drawOnChartArea: false,
+				display : false // only want the grid lines for one axis to show up
+	          },
+	          ticks:{
+			  	fontSize: 20,
+				autoSkip: false,
+				maxRotation: 0,
+                minRotation: 0,
+	            callback:function(label){
+	              var time = label.split(";")[0];
+	              var day = label.split(";")[1];
+				  // To show the day lable only once a day, it is plotted only when the lable of xAxis1 is 13:15. 
+				  // Since only every second label on x_axis is plotted, it can happen that 13:15 is empty. In this case, the day is plotted at 13:30
+				  if(JSON.stringify(time) === JSON.stringify("13:15")){
+					return day;
+	              }else if(JSON.stringify(time) === JSON.stringify("13:30")){
+				  	return day;
+				  }else{
+	                return "";
+	              }
+	            }
+				
+	          }
+	        }],
+	      yAxes:[{
+	        ticks:{
+	          beginAtZero:true
+	        }
+	      }]
+	    }
+	  }
+	});
+	
+	
+	
+	
+	// request the data for a given centre via the API defined in main.py.
+	function addData(data) {
+		
+		centre_history_occupancy_title.innerText = 'Auslastung der letzen Woche in ' + data.centre_properties.name;
+		
+		// Reset the dataset
+		history_occupancy_linechart.data.datasets[0].data = [];
+		history_occupancy_linechart.data.datasets[1].data = [];
+		history_occupancy_linechart.data.datasets[2].data = [];
+		history_occupancy_linechart.data.labels = [];
+		var index = 0;
+		
+		// for each datapoint in the history, add it to the line plot. Two different colors are plotted. Red, if the occupancy is high, green if it is low.
+		$.each(data.occupancy_history, function(key, value) {
+			if (value.occupancy/value.max_occupancy > 0.5){
+				history_occupancy_linechart.data.datasets[0].data.push(value.occupancy);
+				history_occupancy_linechart.data.datasets[1].data.push(null);
+			}else{
+				history_occupancy_linechart.data.datasets[0].data.push(null);
+				history_occupancy_linechart.data.datasets[1].data.push(value.occupancy);
+			}
+			history_occupancy_linechart.data.datasets[2].data.push(value.max_occupancy);
+			
+			if (index%2 ==0){
+				history_occupancy_linechart.data.labels.push(key)
+			}else{
+				history_occupancy_linechart.data.labels.push('')
+			}	
+			index++;	
+		});
+		
+		// To connect the low and high occupancy lines, the "holes" at the transition from one to another dataset is filled.
+		for (i = 1; i < history_occupancy_linechart.data.datasets[0].data.length-1; i++) { 
+			if(history_occupancy_linechart.data.datasets[0].data[i] !== null  && history_occupancy_linechart.data.datasets[0].data[i-1] == null){
+				history_occupancy_linechart.data.datasets[0].data[i-1] = history_occupancy_linechart.data.datasets[1].data[i-1];
+			}else if(history_occupancy_linechart.data.datasets[1].data[i] !== null && history_occupancy_linechart.data.datasets[1].data[i-1] == null){
+				history_occupancy_linechart.data.datasets[1].data[i-1] = history_occupancy_linechart.data.datasets[0].data[i-1];
+			}
+		}
+		
+		// Update the chart	
+		history_occupancy_linechart.update();
+	}
+	
+	
+	function update_history_chart(centre_id){
+		
+		$.getJSON("http://localhost:5000/api/one_training/occupancy?centre_id="+ centre_id, addData);
+	}
+	
+	// On page load, load first centre
+	$.getJSON("http://localhost:5000/api/one_training/occupancy?centre_id="+ 116, addData);
+	
+	</script>
+	{% endblock %}
