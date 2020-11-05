@@ -249,11 +249,11 @@
 	
 	function update_history_chart(centre_id){
 		
-		$.getJSON("http://localhost:5000/api/one_training/occupancy?centre_id="+ centre_id, addData);
+		$.getJSON("/api/one_training/occupancy?centre_id="+ centre_id, addData);
 	}
 	
 	// On page load, load first centre
-	$.getJSON("http://localhost:5000/api/one_training/occupancy?centre_id="+ 116, addData);
+	$.getJSON("/api/one_training/occupancy?centre_id="+ 116, addData);
 	
 	</script>
 	{% endblock %}
