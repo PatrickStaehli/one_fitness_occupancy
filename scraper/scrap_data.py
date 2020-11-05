@@ -37,7 +37,7 @@ def add_occupancy(conn, data):
 def request_occupancy(centres):
     ts = time.gmtime()
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S", ts)
-    conn = create_connection(r"..\database\centre_occupation.db")
+    conn = create_connection(r"../database/centre_occupation.db")
     for centre in centres:
         url = 'https://blfa-api.migros.ch/fp/api/center/' + str(centre) + '/currentuser/'
         response = requests.get(url, verify=False).json()
@@ -57,7 +57,7 @@ def request_occupancy(centres):
 
 
 def request_all_centers():
-    conn = create_connection(r"..\database\centre_occupation.db")
+    conn = create_connection(r"../database/centre_occupation.db")
     cur = conn.cursor()
     cur.execute("SELECT * FROM centres")
     rows = cur.fetchall()
