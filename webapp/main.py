@@ -4,7 +4,7 @@ import cv2 as cv
 import numpy as np
 from querry_data import create_connection
 import datetime
-
+import time
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -63,7 +63,11 @@ def api_one_occupancy():
         centre_name = centre_prop[0][1]
 
         # Query the history of the occupancy for the specific centre
-        centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >=  '2020-10-31' AND maxVisitors > 0 ORDER BY id") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
+        # Request only the last day  %H:%M:%S
+        ts = datetime.date.today() - datetime.timedelta(days=4)
+        start_time = ts.strftime("%Y-%m-%d")
+        print(start_time)
+        centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >= '" + start_time + "' AND maxVisitors > 0 ORDER BY id") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
         
         # Extract the history of the actual occupancy 
         occupancy = [ind[2] for ind in centre_occupancy]
@@ -74,9 +78,9 @@ def api_one_occupancy():
         # Generate labels
         # For each entry, the label looks as 07:15;Samstag. 
         weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
-        time = [roundTime(datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1),15*60) for ind in centre_occupancy]
+        _time = [roundTime(datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1),15*60) for ind in centre_occupancy]
         weekday = [datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S").weekday() for ind in centre_occupancy]
-        labels = [str(time[i].strftime('%H:%M')) + ";" + weekdays[weekday[i]] for i in range(len(time))]
+        labels = [str(_time[i].strftime('%H:%M')) + ";" + weekdays[weekday[i]] for i in range(len(_time))]
 
         # Generate json structure
         occupancy_history = {labels[i]: {'occupancy': occupancy[i], 'max_occupancy': max_occupancy[i]} for i in range(len(occupancy))}
