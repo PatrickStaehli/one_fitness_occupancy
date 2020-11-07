@@ -66,7 +66,6 @@ def api_one_occupancy():
         # Request only the last day  %H:%M:%S
         ts = datetime.date.today() - datetime.timedelta(days=4)
         start_time = ts.strftime("%Y-%m-%d")
-        print(start_time)
         centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >= '" + start_time + "' AND maxVisitors > 0 ORDER BY id") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
         
         # Extract the history of the actual occupancy 
