@@ -111,9 +111,15 @@ def one_occupancy():
                 current_occupancy.append(centre_occupancy[0][2])
                 current_max_occupancy.append(centre_occupancy[0][3])
         
-        # Create the labels for the doughnut charts (e.g. 10%)  
-        current_occupancy_percent = [str(int(np.round(current_occupancy[i]/current_max_occupancy[i]*100))) + '%' for i in range(len(current_max_occupancy))]
-
+        # Create the labels for the doughnut charts (e.g. 10%) 
+        # If current_max_occupancy is 0, this means that the centre is closed.
+        current_occupancy_percent = []
+        for i in range(len(current_max_occupancy)):     
+            if current_max_occupancy[i] == 0:
+                current_occupancy_percent.append('--')
+            else:
+                current_occupancy_percent.append(str(int(np.round(current_occupancy[i]/current_max_occupancy[i]*100))) + '%')
+                
         # Define the color for the donught plot 
         # Low (< 15%) occupancy -> Green, Middle (< 20) -> orange, High (>=20) red
         current_color = []
