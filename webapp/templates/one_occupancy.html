@@ -45,8 +45,8 @@
 		<h3 id="centre_history_occupancy_title"></h3>
 	  </div>
 	  <div class="card-body">
-		<div class="row">
-        	<canvas id="centre_history_occupancy_linechart" style="position: relative; height:40vh; width:80vw"></canvas>	
+		<div id="canvasWrapper" style="position: relative; height: 50vh">
+        	<canvas id="centre_history_occupancy_linechart"></canvas>	
 		</div>
 	  </div>
 	</div>
@@ -147,6 +147,8 @@
 		]
 	  },
 	  options:{
+		responsive: true,
+		maintainAspectRatio: false,
 		scales:{
 	      xAxes:[
 			{
