@@ -124,11 +124,14 @@ def one_occupancy():
         # Low (< 15%) occupancy -> Green, Middle (< 20) -> orange, High (>=20) red
         current_color = []
         for i in range(len(current_occupancy)):
-            if current_occupancy[i]/current_max_occupancy[i] < 0.4:
-                current_color.append(color_green)
-            elif current_occupancy[i]/current_max_occupancy[i] < 0.8:
-                current_color.append(color_orange)
-            else:
+            if current_max_occupancy > 0:
+                if current_occupancy[i]/current_max_occupancy[i] < 0.4:
+                    current_color.append(color_green)
+                elif current_occupancy[i]/current_max_occupancy[i] < 0.8:
+                    current_color.append(color_orange)
+                else:
+                    current_color.append(color_red)
+            else:  
                 current_color.append(color_red)
 
         
