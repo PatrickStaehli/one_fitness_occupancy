@@ -39,6 +39,7 @@
   <!-- END Current Occupancy Doughnut Charts-->
   
   <!-- Line plot of the history of the centre occupancy-->
+  <!--
   <div class="container">
     <div class="card">
 	  <div class="card-header text-center">
@@ -51,6 +52,22 @@
 	  </div>
 	</div>
   </div>
+  -->
+   <!-- Line plot of the prediction of the centre occupancy-->
+  <div class="container">
+    <div class="card">
+	  <div class="card-header text-center">
+		<h3 id="centre_prediction_occupancy_title"></h3>
+	  </div>
+	  <div class="card-body">
+		<div id="canvasWrapper" style="position: relative; height: 50vh">
+        	<canvas id="centre_prediction_occupancy_linechart"></canvas>	
+		</div>
+	  </div>
+	</div>
+  </div>
+  
+  
 </div>
 {% endblock %}
 
@@ -60,6 +77,9 @@
 	<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.js'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.0/Chart.bundle.min.js'></script>
+	<script src='static/chart_settings.js'></script>
+	
 	
 	<!-- Doughnut Chart-->
 	<script>
@@ -112,9 +132,99 @@
 	</script>
 
 
+	<!-- Prediction Plot-->
+	<script>
+	
+
+	var config = {
+	  type: 'stripe',
+	  data: {
+		labels: [],
+		datasets: [{
+		  label: "Erwartete Auslasung",
+		  fill: false,
+		  data: [],
+		  width: [],
+		  borderColor: "rgba(75,192,192,1)",
+		  backgroundColor: "rgba(75,192,192,0.4)",
+		  pointRadius: 0
+		},
+		{
+		  label: 'Maximale Auslastung',
+	      xAxisID:'xAxis1',
+		  borderColor:"rgba(0,0,0,0.8)",
+		  backgroundColor : "rgba(0,0,0,0)",
+		  pointRadius: 0,
+	      data: [],
+		  width: []
+		}]
+	  },
+	  options:{
+		responsive: true,
+		maintainAspectRatio: false,
+		scales:{
+	      xAxes:[
+			{
+	          id:'xAxis1',
+	          type:"category",
+	          ticks:{
+	            callback:function(label){
+	              var time = label.split(";")[0];
+	              var day = label.split(";")[1];
+	              return time;
+	            }
+	          },
+			  autoSkip: true
+	        },
+	        {
+	          id:'xAxis2',
+	          type:"category",
+	          scaleFontSize: 100,
+			  gridLines: {
+	            drawOnChartArea: false,
+				display : false // only want the grid lines for one axis to show up
+	          },
+	          ticks:{
+			  	fontSize: 20,
+				autoSkip: false,
+				maxRotation: 0,
+                minRotation: 0,
+	            callback:function(label){
+	              var time = label.split(";")[0];
+	              var day = label.split(";")[1];
+				  // To show the day lable only once a day, it is plotted only when the lable of xAxis1 is 13:15. 
+				  // Since only every second label on x_axis is plotted, it can happen that 13:15 is empty. In this case, the day is plotted at 13:30
+				  if(JSON.stringify(time) === JSON.stringify("13:15")){
+					return day;
+	              }else if(JSON.stringify(time) === JSON.stringify("13:30")){
+				  	return day;
+				  }else{
+	                return "";
+	              }
+	            }
+				
+	          }
+	        }],
+	      yAxes:[{
+	        ticks:{
+	          beginAtZero:true
+	        }
+	      }]
+	    }
+	  }
+	};
+
+	var ctx = document.getElementById("centre_prediction_occupancy_linechart").getContext("2d");
+	var prediction_occupancy_linechart = new Chart(ctx, config);
+
+	</script>
+	<!-- End Prediction Plot -->
+
+
 	<!-- History Line Chart-->
 	<script>	
 	// Define the chart properties
+	/*
 	var ctx = $("#centre_history_occupancy_linechart");
 	var history_occupancy_linechart = new Chart(ctx, {
 	  type: 'line',
@@ -200,24 +310,44 @@
 	    }
 	  }
 	});
-	
-	
+	*/
+	</script>
+		
+	<script>
 	
 	
 	// request the data for a given centre via the API defined in main.py.
 	function addData(data) {
 		
-		centre_history_occupancy_title.innerText = 'Auslastung der letzen Woche in ' + data.centre_properties.name;
+		//centre_history_occupancy_title.innerText = 'Auslastung der letzen Woche in ' + data.centre_properties.name;
+		centre_prediction_occupancy_title.innerText = 'Auslastung der letzen Woche in ' + data.centre_properties.name;
 		
 		// Reset the dataset
+		
+		prediction_occupancy_linechart.data.datasets[0].data = [];
+		prediction_occupancy_linechart.data.datasets[0].width = [];
+		prediction_occupancy_linechart.data.datasets[1].data = [];
+		prediction_occupancy_linechart.data.datasets[1].width = [];
+		prediction_occupancy_linechart.data.labels = [];
+		
+		/*
 		history_occupancy_linechart.data.datasets[0].data = [];
 		history_occupancy_linechart.data.datasets[1].data = [];
 		history_occupancy_linechart.data.datasets[2].data = [];
 		history_occupancy_linechart.data.labels = [];
+		*/
 		var index = 0;
 		
 		// for each datapoint in the history, add it to the line plot. Two different colors are plotted. Red, if the occupancy is high, green if it is low.
 		$.each(data.occupancy_history, function(key, value) {
+			
+			prediction_occupancy_linechart.data.datasets[0].data.push(value.occupancy)
+			prediction_occupancy_linechart.data.datasets[0].width.push(value.occupancy_std)
+			
+			prediction_occupancy_linechart.data.datasets[1].data.push(value.max_occupancy)
+			prediction_occupancy_linechart.data.datasets[0].width.push(0)
+			
+			/*
 			if (value.occupancy/value.max_occupancy > 0.5){
 				history_occupancy_linechart.data.datasets[0].data.push(value.occupancy);
 				history_occupancy_linechart.data.datasets[1].data.push(null);
@@ -226,16 +356,19 @@
 				history_occupancy_linechart.data.datasets[1].data.push(value.occupancy);
 			}
 			history_occupancy_linechart.data.datasets[2].data.push(value.max_occupancy);
-			
+			*/
 			if (index%2 ==0){
-				history_occupancy_linechart.data.labels.push(key)
+				//history_occupancy_linechart.data.labels.push(key)
+				prediction_occupancy_linechart.data.labels.push(key)
 			}else{
-				history_occupancy_linechart.data.labels.push('')
+				//history_occupancy_linechart.data.labels.push('')
+				prediction_occupancy_linechart.data.labels.push('')
 			}	
 			index++;	
 		});
 		
 		// To connect the low and high occupancy lines, the "holes" at the transition from one to another dataset is filled.
+		/*
 		for (i = 1; i < history_occupancy_linechart.data.datasets[0].data.length-1; i++) { 
 			if(history_occupancy_linechart.data.datasets[0].data[i] !== null  && history_occupancy_linechart.data.datasets[0].data[i-1] == null){
 				history_occupancy_linechart.data.datasets[0].data[i-1] = history_occupancy_linechart.data.datasets[1].data[i-1];
@@ -243,9 +376,10 @@
 				history_occupancy_linechart.data.datasets[1].data[i-1] = history_occupancy_linechart.data.datasets[0].data[i-1];
 			}
 		}
-		
+		*/
 		// Update the chart	
-		history_occupancy_linechart.update();
+		//history_occupancy_linechart.update();
+		prediction_occupancy_linechart.update();
 	}
 	
 	

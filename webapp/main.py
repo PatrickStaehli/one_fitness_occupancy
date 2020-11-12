@@ -1,7 +1,9 @@
 from flask import Flask, redirect, url_for, render_template, request, jsonify
 from flask_cors import CORS, cross_origin
 import cv2 as cv
+import sqlite3
 import numpy as np
+import pandas as pd
 from querry_data import create_connection
 import datetime
 import time
@@ -64,25 +66,63 @@ def api_one_occupancy():
 
         # Query the history of the occupancy for the specific centre
         # Request only the last day  %H:%M:%S
-        ts = datetime.date.today() - datetime.timedelta(days=4)
+        ts = datetime.date.today() - datetime.timedelta(days=30)
         start_time = ts.strftime("%Y-%m-%d")
-        centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >= '" + start_time + "' AND maxVisitors > 0 ORDER BY id") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
+        
+        # NEW: 
+        query = "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >= '" + start_time + "' AND maxVisitors > 0 ORDER BY id"
+        conn = sqlite3.connect(path_to_database)
+
+        # Create pandas dataframe
+        occupancy_df = pd.read_sql_query(query, conn)
+        conn.close()
+        
+        # Convert timestamp to datetime and gmt+1
+        occupancy_df['timestamp']= pd.to_datetime(occupancy_df['timestamp']) + datetime.timedelta(hours=1)
+        occupancy_df['timestamp_round_time'] = pd.to_datetime(occupancy_df['timestamp'], format='%H:%M').dt.round('15min').dt.time
+        # Add Weekday column
+        occupancy_df['weekday'] = [ts.weekday() for ind, ts in enumerate(occupancy_df['timestamp'])]
+        
+        weekday = datetime.datetime.today().weekday()
+        # Group by weekday
+        occupancy_df_weekday = occupancy_df[occupancy_df['weekday'] == weekday]
+        
+        occupancy_df_grouped_by_time = occupancy_df_weekday.groupby(['timestamp_round_time'])['currentVisitors'].describe()
+        occupancy_df_grouped_by_time['std'] = occupancy_df_grouped_by_time['std'].fillna(0)
+        occupancy_mean = occupancy_df_grouped_by_time['mean'].to_numpy()
+        occupancy_std  = occupancy_df_grouped_by_time['std'].to_numpy()
+        
+        # old:
+        # centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >= '" + start_time + "' AND maxVisitors > 0 ORDER BY id") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
+        centre_occupancy = query_data(path_to_database, query)
+        
+        
+        
         
         # Extract the history of the actual occupancy 
-        occupancy = [ind[2] for ind in centre_occupancy]
+        # occupancy = [ind[2] for ind in centre_occupancy]
+        
+        # End OLD
+        
         
         # Extract the history of the maximum occupancy
-        max_occupancy = [ind[3] for ind in centre_occupancy]
+        max_occupancy = occupancy_df_weekday.maxVisitors.to_numpy()
+        
         
         # Generate labels
-        # For each entry, the label looks as 07:15;Samstag. 
+        # For each entry, the label looks as 07:15;Samstag.        
         weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
-        _time = [roundTime(datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1),15*60) for ind in centre_occupancy]
-        weekday = [datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S").weekday() for ind in centre_occupancy]
-        labels = [str(_time[i].strftime('%H:%M')) + ";" + weekdays[weekday[i]] for i in range(len(_time))]
-
+        occupancy_df_weekday['timestamp_round_time'] = occupancy_df_weekday['timestamp_round_time'].astype('str')
+        weekdays_list = occupancy_df_weekday['weekday'].tolist()
+        round_times_list = occupancy_df_weekday['timestamp_round_time'].tolist()
+        
+        #_time = [roundTime(datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1),15*60) for ind in centre_occupancy]
+        #weekday = [datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S").weekday() for ind in centre_occupancy]
+        #labels = [str(_time[i].strftime('%H:%M')) + ";" + weekdays[weekday[i]] for i in range(len(_time))]
+        labels = [round_times_list[i][0:5] + ";" + weekdays[weekdays_list[i]] for i in range(len(weekdays_list))]
+        
         # Generate json structure
-        occupancy_history = {labels[i]: {'occupancy': occupancy[i], 'max_occupancy': max_occupancy[i]} for i in range(len(occupancy))}
+        occupancy_history = {labels[i]: {'occupancy': occupancy_mean[i], 'occupancy_std': occupancy_std[i], 'max_occupancy': int(max_occupancy[i])} for i in range(len(occupancy_mean))}
         centre_properties  = {'centre_properties': {'centre_id': centre_id, 'name': centre_name}, 'occupancy_history': occupancy_history}
         response = jsonify(centre_properties)
         response.headers.add("Access-Control-Allow-Origin", "*")
