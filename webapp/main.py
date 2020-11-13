@@ -87,23 +87,14 @@ def api_one_occupancy():
         # Group by weekday
         occupancy_df_weekday = occupancy_df[occupancy_df['weekday'] == weekday]
         
-        occupancy_df_grouped_by_time = occupancy_df_weekday.groupby(['timestamp_round_time'])['currentVisitors'].describe()
-        occupancy_df_grouped_by_time['std'] = occupancy_df_grouped_by_time['std'].fillna(0)
-        occupancy_mean = occupancy_df_grouped_by_time['mean'].to_numpy()
-        occupancy_std  = occupancy_df_grouped_by_time['std'].to_numpy()
         
-        # old:
-        # centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >= '" + start_time + "' AND maxVisitors > 0 ORDER BY id") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
-        centre_occupancy = query_data(path_to_database, query)
+        occupancy_df_grouped_by_time = occupancy_df_weekday.groupby(['timestamp_round_time'])#['currentVisitors'].describe()
+        occupancy_df_grouped_by_time_statistic = occupancy_df_grouped_by_time['currentVisitors'].describe()
+        occupancy_df_grouped_by_time_statistic['std'] = occupancy_df_grouped_by_time_statistic['std'].fillna(0)
         
         
-        
-        
-        # Extract the history of the actual occupancy 
-        # occupancy = [ind[2] for ind in centre_occupancy]
-        
-        # End OLD
-        
+        occupancy_mean = occupancy_df_grouped_by_time_statistic['mean'].to_numpy()
+        occupancy_std  = occupancy_df_grouped_by_time_statistic['std'].to_numpy()
         
         # Extract the history of the maximum occupancy
         max_occupancy = occupancy_df_weekday.maxVisitors.to_numpy()
@@ -112,14 +103,11 @@ def api_one_occupancy():
         # Generate labels
         # For each entry, the label looks as 07:15;Samstag.        
         weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
-        occupancy_df_weekday['timestamp_round_time'] = occupancy_df_weekday['timestamp_round_time'].astype('str')
+        round_times_list = [key.strftime("%H:%M") for key, _ in occupancy_df_grouped_by_time]
         weekdays_list = occupancy_df_weekday['weekday'].tolist()
-        round_times_list = occupancy_df_weekday['timestamp_round_time'].tolist()
         
-        #_time = [roundTime(datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1),15*60) for ind in centre_occupancy]
-        #weekday = [datetime.datetime.strptime(ind[4], "%Y-%m-%d %H:%M:%S").weekday() for ind in centre_occupancy]
-        #labels = [str(_time[i].strftime('%H:%M')) + ";" + weekdays[weekday[i]] for i in range(len(_time))]
-        labels = [round_times_list[i][0:5] + ";" + weekdays[weekdays_list[i]] for i in range(len(weekdays_list))]
+        
+        labels = [round_times_list[i] + ";" + weekdays[weekdays_list[i]] for i in range(len(round_times_list))]
         
         # Generate json structure
         occupancy_history = {labels[i]: {'occupancy': occupancy_mean[i], 'occupancy_std': occupancy_std[i], 'max_occupancy': int(max_occupancy[i])} for i in range(len(occupancy_mean))}
