@@ -148,8 +148,13 @@ def one_occupancy():
         current_max_occupancy = []
         for i, centre_id in enumerate(centre_ids):
                 centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >=  '2020-10-31' AND timestamp IN (SELECT max(timestamp) FROM occupancy)") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
-                current_occupancy.append(centre_occupancy[0][2])
-                current_max_occupancy.append(centre_occupancy[0][3])
+                if not centre_occupancy:
+                    print(str(centre_id) + ": Data not available ")
+                    current_occupancy.append(0)
+                    current_max_occupancy.append(0)
+                else:
+                    current_occupancy.append(centre_occupancy[0][2])
+                    current_max_occupancy.append(centre_occupancy[0][3])
         
         # Create the labels for the doughnut charts (e.g. 10%) 
         # If current_max_occupancy is 0, this means that the centre is closed.
