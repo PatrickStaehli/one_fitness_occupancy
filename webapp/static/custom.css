@@ -46,8 +46,8 @@ canvas {
 }
 .percent {
 	position: absolute;
-	left: 50%;
-	transform: translate(-50%, -30%);
+	left: 50% !important;
+	transform: translate(-60%, -10%) !important;
 	font-size: 20px;
 	bottom: 0;
 }
@@ -72,13 +72,13 @@ canvas {
 @media screen and (min-width: 993px) {
   p.location {
     font-size: 22px;
-	transform: translate(-50%, -170%);
+	transform: translate(-55%, -170%);
   }
   p.percent {
   	transform: translate(-50%, -30%);
   }
 }
-
+/*
 @media screen and (min-width: 769px) and (max-width: 992px) {
   p.location {
     font-size: 22px;
@@ -107,3 +107,5 @@ canvas {
   	transform: translate(-40%, -30%);
   }
 }
+
+*/
