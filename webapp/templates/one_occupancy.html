@@ -46,7 +46,7 @@
                     <div class="col-12 mb-3 mb-md-0">
                         <div class="card py-4 h-100">
                             <div class="card-body text-center">
-                                <h4 class="text-uppercase m-0">Aktuelle Auslastung</h4>
+                                <h4 class="text-uppercase m-0">Auslastung</h4>
                                 <hr class="my-4" />
                             </div>
 								
@@ -58,8 +58,8 @@
 										<p class="location text-center">
 											{{centres[i]}}    
 										</p>
-										<canvas id="doughnut_chart_centre{{i+1}}" width="50%" height="50%"></canvas>
-										 <p class="percent">
+										<canvas id="doughnut_chart_centre{{i+1}}" width="30%" height="30%"></canvas>
+										 <p class="percent text-center">
 										 {{current_occupancy_percent[i]}}
 										 </p>
 										 <a href = "#!" onclick="update_history_chart({{centre_ids[i]}});"> 

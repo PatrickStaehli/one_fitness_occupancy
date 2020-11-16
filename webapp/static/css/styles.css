@@ -61,7 +61,8 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 
 canvas
 {
-    width: 100% !important;
+    position: relative;
+	width: 100% !important;
 }
 
 body {
@@ -10221,8 +10222,8 @@ body {
 }
 .masthead h1 {
   font-family: "Varela Round", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  font-size: 2.5rem;
-  line-height: 2.5rem;
+  font-size: 2rem;
+  line-height: 2rem;
   letter-spacing: 0.8rem;
   background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
   -webkit-text-fill-color: transparent;
@@ -10349,3 +10350,94 @@ body {
 .footer {
   padding: 5rem 0;
 }
+
+
+
+/* Doughnut and line chart plot */
+
+.outer {  
+	width: 100px;
+	height: 100px;
+	right: 0;
+	left: 0;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+
+.percent {
+	position: absolute;
+	left: 50% !important;
+	transform: translate(-60%, -10%);
+	font-size: 20px;
+	bottom: 0;
+}
+.location {
+	position: absolute;
+    left: 50%;
+    transform: translate(-50%, -170%);
+    font-size: 22px;
+    bottom: 0;
+}
+.hyperspan
+{
+    position:absolute;
+	transform: translate(0%, -140%);
+    width:80%;
+    height:25%;
+    left:10%;
+    top:25%;
+    z-index:1;
+}
+
+@media screen and (min-width: 1025px) {
+  p.location {
+    font-size: 22px;
+	transform: translate(-60%, -170%);
+  }
+  p.percent {
+  	transform: translate(-60%, -10%);
+  }
+}
+
+@media screen and (min-width: 993px) and (max-width: 1024px) {
+  p.location {
+    font-size: 22px;
+	transform: translate(-45%, -170%);
+  }
+  p.percent {
+  	transform: translate(-30%, -10%);
+  }
+}
+
+@media screen and (min-width: 769px) and (max-width: 992px) {
+  p.location {
+    font-size: 22px;
+	transform: translate(-55%, -175%);
+  }
+  p.percent {
+  	transform: translate(-50%, -10%);
+  }
+}
+
+@media screen and (min-width: 577px) and (max-width: 768px){
+  p.location {
+    font-size: 20px;
+	transform: translate(-55%, -200%);
+  }
+  p.percent {
+  	transform: translate(-50%, -10%);
+  }
+}
+@media screen and (max-width:  576px) {
+  p.location {
+    font-size: 20px;
+	transform: translate(-55%, -200%);
+  }
+  p.percent {
+  	transform: translate(-55%, -10%);
+  }
+}
+
+
+
