@@ -1,3 +1,11 @@
+/*
+
+
+
+
+
+
+*/
 
 
 
@@ -174,10 +182,6 @@ var config = {
 var ctx = document.getElementById("centre_prediction_occupancy_linechart").getContext("2d");
 var prediction_occupancy_linechart = new Chart(ctx, config);
 
-
-
-
-
 // request the data for a given centre via the API defined in main.py.
 function addData(data) {
 	
@@ -201,7 +205,7 @@ function addData(data) {
 		prediction_occupancy_linechart.data.datasets[0].width.push(value.occupancy_std)
 		
 		prediction_occupancy_linechart.data.datasets[1].data.push(value.max_occupancy)
-		prediction_occupancy_linechart.data.datasets[0].width.push(0)
+		prediction_occupancy_linechart.data.datasets[1].width.push(0)
 		
 		if (index%2 ==0){
 			//history_occupancy_linechart.data.labels.push(key)
@@ -213,6 +217,7 @@ function addData(data) {
 		index++;	
 	});
 	
+	console.log(prediction_occupancy_linechart.data.datasets[0].width)
 	// Update the chart	
 	prediction_occupancy_linechart.update();
 }
