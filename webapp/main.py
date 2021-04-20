@@ -66,7 +66,7 @@ def api_one_occupancy():
 
         # Query the history of the occupancy for the specific centre
         # Request only the last day  %H:%M:%S
-        ts = datetime.date.today() - datetime.timedelta(days=30)
+        ts = datetime.date.today() - datetime.timedelta(days=360)
         start_time = ts.strftime("%Y-%m-%d")
         
         # NEW: 
