@@ -10373,12 +10373,14 @@ body {
 	bottom: 0;
 }
 .location {
+    color: black;
 	position: absolute;
     left: 50%;
     transform: translate(-50%, -170%);
     font-size: 22px;
     bottom: 0;
 }
+
 .hyperspan
 {
     position:absolute;
