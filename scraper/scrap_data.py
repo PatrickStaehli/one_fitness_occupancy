@@ -77,11 +77,18 @@ def request_all_centers():
     
     ts = time.gmtime()
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S", ts)
-    
-    print(timestamp)
-    print("Request status:")
-    print(request_center_status)
-    print("----------------------------------------------------------------------------------------------------------------------------------------------\n \n")
+
+    with open("scraper_output.txt", "a") as f:
+        f.write(str(timestamp) + "\n")
+        f.write("Request status: \n")
+        f.write(str(request_center_status))
+        f.write("\n----------------------------------------------------------------------------------------------------------------------------------------------\n \n")
+        f.close()
+
+    #print(timestamp)
+    #print("Request status:")
+    #print(request_center_status)
+    #print("----------------------------------------------------------------------------------------------------------------------------------------------\n \n")
     time.sleep(60*15)
 
     
