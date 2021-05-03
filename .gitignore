@@ -1,2 +1,4 @@
 *.db
+one_scraper_venv/
+scraper_output.txt
 webapp/__pycache__
