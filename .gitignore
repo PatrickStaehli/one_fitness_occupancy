@@ -1,4 +1,5 @@
 *.db
 one_scraper_venv/
+one_fitness_webapp_venv/
 scraper_output.txt
 webapp/__pycache__
