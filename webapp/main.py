@@ -1,10 +1,10 @@
 from flask import Flask, redirect, url_for, render_template, request, jsonify
 from flask_cors import CORS, cross_origin
-import cv2 as cv
 import sqlite3
 import numpy as np
 import pandas as pd
-from querry_data import create_connection
+
+from db_lib import SQLiteConnector
 import datetime
 import time
 
@@ -14,37 +14,13 @@ app.config['JSON_SORT_KEYS'] = False
 
 CORS(app, support_credentials=True)
 
-
+# Define the colors for the doughnut plots
 color_red = [231, 76, 60]
 color_orange = [255,69,0]
 color_green = [50,205,50]
 
 
 path_to_database = "../database/centre_occupation.db"
-
-
-
-def roundTime(dt=None, roundTo=60):
-    """Round a datetime object to any time lapse in seconds
-    dt : datetime.datetime object, default now.
-    roundTo : Closest number of seconds to round to, default 1 minute.
-    Author: Thierry Husson 2012 - Use it as you want but don't blame me.
-    """
-    if dt == None : dt = datetime.datetime.now()
-    seconds = (dt.replace(tzinfo=None) - dt.min).seconds
-    rounding = (seconds+roundTo/2) // roundTo * roundTo
-    return dt + datetime.timedelta(0,rounding-seconds,-dt.microsecond)
-
-
-def query_data(database, sql_statement):
-        conn = create_connection(database)
-        cur = conn.cursor()
-        cur.execute(sql_statement )
-        query_result = cur.fetchall()
-        conn.close()
-        return query_result
-
-
 
 @app.route("/")
 def home():
@@ -57,12 +33,14 @@ def api_one_occupancy():
         '''
         
         # Read the get argument
-
         centre_id = request.args.get('centre_id')
-
+        
         # Query the centre name for the specific centre id 
-        centre_prop = query_data(path_to_database, "SELECT * FROM centres WHERE centre_id = " + str(centre_id) ) # Returns (centre_id, centre_name)
+        cnxn = SQLiteConnector(path_to_database)
+        centre_prop = cnxn.query_data("SELECT * FROM centres WHERE centre_id = " + str(centre_id) ) #Returns (centre_id, centre_name)
         centre_name = centre_prop[0][1]
+        cnxn.close_connection()
+        
 
         # Query the history of the occupancy for the specific centre
         # Request only the last day  %H:%M:%S
@@ -126,7 +104,9 @@ def one_occupancy():
         
         
         # Request all the center names
-        centres = query_data(path_to_database, "SELECT * FROM centres") # Returns (centre_id, centre_name)
+        cnxn = SQLiteConnector(path_to_database)
+        centres = cnxn.query_data("SELECT * FROM centres") # Returns (centre_id, centre_name)
+        cnxn.close_connection()
         centre_ids = [centre[0] for centre in centres]
         centre_names = [centre[1] for centre in centres]
         
@@ -135,7 +115,13 @@ def one_occupancy():
         current_occupancy = []
         current_max_occupancy = []
         for i, centre_id in enumerate(centre_ids):
-                centre_occupancy = query_data(path_to_database, "SELECT * FROM occupancy WHERE centre_id = " + str(centre_id) + " AND timestamp >=  '2020-10-31' AND timestamp IN (SELECT max(timestamp) FROM occupancy)") # Returns (id, centre_id, currentVisitors, maxVisitors, timestamp)
+                cnxn = SQLiteConnector(path_to_database)
+                centre_occupancy = cnxn.query_data("""SELECT * FROM occupancy WHERE 
+                                                        centre_id = """ + str(centre_id) + """
+                                                        AND timestamp >=  '2020-10-31' 
+                                                        AND timestamp IN (SELECT max(timestamp) FROM occupancy)"""
+                                                  )
+                cnxn.close_connection()
                 if not centre_occupancy:
                     print(str(centre_id) + ": Data not available ")
                     current_occupancy.append(0)

@@ -183,53 +183,57 @@ var ctx = document.getElementById("centre_prediction_occupancy_linechart").getCo
 var prediction_occupancy_linechart = new Chart(ctx, config);
 
 // request the data for a given centre via the API defined in main.py.
-function addData(data) {
+function update_occupancy_plot(data) {
 	
-	//centre_history_occupancy_title.innerText = 'Auslastung der letzen Woche in ' + data.centre_properties.name;
 	centre_prediction_occupancy_title.innerText = 'Erwartete Auslastung in ' + data.centre_properties.name;
 	
 	// Reset the dataset
-	
+	// Mean occupancy
 	prediction_occupancy_linechart.data.datasets[0].data = [];
 	prediction_occupancy_linechart.data.datasets[0].width = [];
+	// Standard deviation
 	prediction_occupancy_linechart.data.datasets[1].data = [];
 	prediction_occupancy_linechart.data.datasets[1].width = [];
+	// Labels
 	prediction_occupancy_linechart.data.labels = [];
 	
 	var index = 0;
 	
-	// for each datapoint in the history, add it to the line plot. Two different colors are plotted. Red, if the occupancy is high, green if it is low.
+	// for each datapoint in the history, add it to the line plot. 
 	$.each(data.occupancy_history, function(key, value) {
 		
-		prediction_occupancy_linechart.data.datasets[0].data.push(value.occupancy)
-		prediction_occupancy_linechart.data.datasets[0].width.push(value.occupancy_std)
-		
-		prediction_occupancy_linechart.data.datasets[1].data.push(value.max_occupancy)
-		prediction_occupancy_linechart.data.datasets[1].width.push(0)
-		
-		if (index%2 ==0){
-			//history_occupancy_linechart.data.labels.push(key)
-			prediction_occupancy_linechart.data.labels.push(key)
-		}else{
-			//history_occupancy_linechart.data.labels.push('')
-			prediction_occupancy_linechart.data.labels.push('')
-		}	
-		index++;	
+		// Push occupancy to chart if time is larger than 06:00
+		if (key.split(':')[0]>=6 && key.split(':')[0]<22) {
+			
+			// Mean occupancy at time t
+			prediction_occupancy_linechart.data.datasets[0].data.push(value.occupancy)
+			prediction_occupancy_linechart.data.datasets[0].width.push(value.occupancy_std)
+			
+			// Standard deviation of the occupancy at time t
+			prediction_occupancy_linechart.data.datasets[1].data.push(value.max_occupancy)
+			prediction_occupancy_linechart.data.datasets[1].width.push(0)
+			
+			// Only every second label is plottet.
+			if (index%2 ==0){
+				prediction_occupancy_linechart.data.labels.push(key)
+			}else{
+				prediction_occupancy_linechart.data.labels.push('')
+			}	
+			index++;	
+		}
 	});
 	
-	console.log(prediction_occupancy_linechart.data.datasets[0].width)
 	// Update the chart	
 	prediction_occupancy_linechart.update();
 }
 
 
 function update_history_chart(centre_id){
-	
-	$.getJSON("/api/one_training/occupancy?centre_id="+ centre_id, addData);
+	$.getJSON("/api/one_training/occupancy?centre_id="+ centre_id, update_occupancy_plot);
 }
 
 // On page load, load first centre
-$.getJSON("/api/one_training/occupancy?centre_id="+ 116, addData);
+$.getJSON("/api/one_training/occupancy?centre_id="+ 116, update_occupancy_plot);
 
 
 
