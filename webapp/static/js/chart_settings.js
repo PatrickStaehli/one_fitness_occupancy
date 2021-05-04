@@ -229,11 +229,11 @@ function update_occupancy_plot(data) {
 
 
 function update_history_chart(centre_id){
-	$.getJSON("/api/one_training/occupancy?centre_id="+ centre_id, update_occupancy_plot);
+	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ centre_id, update_occupancy_plot);
 }
 
 // On page load, load first centre
-$.getJSON("/api/one_training/occupancy?centre_id="+ 116, update_occupancy_plot);
+$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116, update_occupancy_plot);
 
 
 

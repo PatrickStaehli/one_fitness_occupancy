@@ -27,7 +27,7 @@ def home():
         return render_template("index.html")
 
 
-@app.route("/api/one_training/occupancy", methods=['GET'])
+@app.route("/one_occupancy/api/one_training/occupancy", methods=['GET'])
 def api_one_occupancy():
         '''Returns the history of the occupancy and max occupancy for the requested center_id in a json format
         '''
