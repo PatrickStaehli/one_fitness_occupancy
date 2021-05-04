@@ -1,10 +1,6 @@
 /*
-
-
-
-
-
-
+Defines the settings for the history chart.
+Requests the occupancy data and updates the line-chart.
 */
 
 
@@ -213,7 +209,7 @@ function update_occupancy_plot(data) {
 			prediction_occupancy_linechart.data.datasets[1].data.push(value.max_occupancy)
 			prediction_occupancy_linechart.data.datasets[1].width.push(0)
 			
-			// Only every second label is plottet.
+			// Only every second label is plotted.
 			if (index%2 ==0){
 				prediction_occupancy_linechart.data.labels.push(key)
 			}else{
