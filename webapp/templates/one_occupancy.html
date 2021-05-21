@@ -13,11 +13,11 @@
         <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
-		<!-- Linode -->
+		<!-- Linode 
         <link href="/one_occupancy/static/css/styles.css" rel="stylesheet" />
-		<!-- Local 
+		<!-- Local -->
 		<link href="static/css/styles.css" rel="stylesheet" />
-		-->
+		
     </head>
     <body id="page-top">
         <!-- Navigation-->
@@ -50,6 +50,7 @@
                         <div class="card py-4 h-100">
                             <div class="card-body text-center">
                                 <h4 class="text-uppercase m-0">Aktuelle Auslastung</h4>
+								<h5 id="last_update" class="text m-0">Letzte aktualisierung: {{last_update}}</h5>
                                 <hr class="my-4" />
                             </div>
 								
@@ -129,9 +130,9 @@
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.0/Chart.bundle.min.js'></script>
 	<!-- Linode -->
 	<script src='/one_occupancy/static/js/chart_settings.js'></script>
-	<!-- Local
+	<!-- Local-->
 	<script src='static/js/chart_settings.js'></script>
-	-->
+	
 	<!-- Doughnut Chart-->
 	<script>
 	{%for i in range(len)%} 
