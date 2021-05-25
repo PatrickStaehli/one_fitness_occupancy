@@ -110,6 +110,7 @@ def one_occupancy():
         # Request the most current centre occupancy for each centre
         current_occupancy = []
         current_max_occupancy = []
+        centre_last_update = []
         for i, centre_id in enumerate(centre_ids):
                 cnxn = SQLiteConnector(path_to_database)
                 centre_occupancy = cnxn.query_data("""SELECT * FROM occupancy WHERE 
@@ -122,10 +123,13 @@ def one_occupancy():
                     print(str(centre_id) + ": Data not available ")
                     current_occupancy.append(0)
                     current_max_occupancy.append(0)
+                    centre_last_update.append(0)
+                    
                 else:
                     current_occupancy.append(centre_occupancy[0][2])
                     current_max_occupancy.append(centre_occupancy[0][3])
-        
+                    centre_last_update.append(centre_occupancy[0][4])
+                    
         # Create the labels for the doughnut charts (e.g. 10%) 
         # If current_max_occupancy is 0, this means that the centre is closed.
         current_occupancy_percent = []
@@ -150,8 +154,13 @@ def one_occupancy():
                 current_color.append(color_red)
 
         
+        # Reshape the update time 
+        dtd = datetime.datetime.strptime(centre_last_update[0], "%Y-%m-%d %H:%M:%S")
+        last_update = dtd.strftime("%d.%m.%Y, %H:%M")
+        
+        
         # Render the html template
-        return render_template("one_occupancy.html", len = len(centre_names), centre_ids = centre_ids, centres = centre_names, current_occupancy_percent = current_occupancy_percent, current_occupancy = current_occupancy, current_max_occupancy = current_max_occupancy, current_color=current_color)
+        return render_template("one_occupancy.html", len = len(centre_names), centre_ids = centre_ids, centres = centre_names, current_occupancy_percent = current_occupancy_percent, current_occupancy = current_occupancy, current_max_occupancy = current_max_occupancy, current_color=current_color, last_update = last_update)
 
 
 @app.after_request
