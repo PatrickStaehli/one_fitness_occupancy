@@ -155,7 +155,7 @@ def one_occupancy():
 
         
         # Reshape the update time 
-        dtd = datetime.datetime.strptime(centre_last_update[0], "%Y-%m-%d %H:%M:%S")
+        dtd = datetime.datetime.strptime(centre_last_update[0], "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=2)
         last_update = dtd.strftime("%d.%m.%Y, %H:%M")
         
         
