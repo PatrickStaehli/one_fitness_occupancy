@@ -106,7 +106,7 @@ var config = {
 	  fill: false,
 	  data: [],
 	  width: [],
-	  borderColor: "rgba(75,192,192,1)",
+	  borderColor: "rgba(75,192,192,0)",
 	  backgroundColor: "rgba(75,192,192,0.4)",
 	  pointRadius: 0
 	},
@@ -115,6 +115,15 @@ var config = {
 	  xAxisID:'xAxis1',
 	  borderColor:"rgba(0,0,0,0.8)",
 	  backgroundColor : "rgba(0,0,0,0)",
+	  pointRadius: 0,
+	  data: [],
+	  width: []
+	},
+	{
+	  label: 'Aktuelle Auslastung',
+	  xAxisID:'xAxis1',
+	  borderColor:"rgba(255,0,0,0.8)",
+	  backgroundColor : "rgba(255,0,0,0)",
 	  pointRadius: 0,
 	  data: [],
 	  width: []
@@ -184,12 +193,17 @@ function update_occupancy_plot(data) {
 	centre_prediction_occupancy_title.innerText = 'Erwartete Auslastung in ' + data.centre_properties.name;
 	
 	// Reset the dataset
-	// Mean occupancy
+	// Mean and std occupancy
 	prediction_occupancy_linechart.data.datasets[0].data = [];
 	prediction_occupancy_linechart.data.datasets[0].width = [];
-	// Standard deviation
+	// Maximum occupancy
 	prediction_occupancy_linechart.data.datasets[1].data = [];
 	prediction_occupancy_linechart.data.datasets[1].width = [];
+	// Todays occupancy
+	prediction_occupancy_linechart.data.datasets[2].data = [];
+	prediction_occupancy_linechart.data.datasets[2].width = [];
+	
+	
 	// Labels
 	prediction_occupancy_linechart.data.labels = [];
 	
@@ -208,6 +222,12 @@ function update_occupancy_plot(data) {
 			// Standard deviation of the occupancy at time t
 			prediction_occupancy_linechart.data.datasets[1].data.push(value.max_occupancy)
 			prediction_occupancy_linechart.data.datasets[1].width.push(0)
+			
+			// Todays occupancy
+			if(value.occupancy_today != 'NaN'){
+				prediction_occupancy_linechart.data.datasets[2].data.push(value.occupancy_today);
+				prediction_occupancy_linechart.data.datasets[2].width.push(0);
+			}
 			
 			// Only every second label is plotted.
 			if (index%2 ==0){

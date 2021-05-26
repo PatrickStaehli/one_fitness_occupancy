@@ -53,13 +53,14 @@ def api_one_occupancy():
         cnxn.close_connection()
         
         # Convert timestamp to datetime and gmt+1
-        occupancy_df['timestamp']= pd.to_datetime(occupancy_df['timestamp']) + datetime.timedelta(hours=1)
+        occupancy_df['timestamp']= pd.to_datetime(occupancy_df['timestamp']) + datetime.timedelta(hours=2)
         occupancy_df['timestamp_round_time'] = pd.to_datetime(occupancy_df['timestamp'], format='%H:%M').dt.round('15min').dt.time
         # Add Weekday column
         occupancy_df['weekday'] = [ts.weekday() for ind, ts in enumerate(occupancy_df['timestamp'])]
         
         
-        weekday = datetime.datetime.today().weekday()
+        # # Debugging: weekday = (datetime.datetime.today() - datetime.timedelta(days=0)).weekday()
+        weekday = datetime.datetime.today()
         # Group by weekday
         occupancy_df_weekday = occupancy_df[occupancy_df['weekday'] == weekday]
         
@@ -86,9 +87,9 @@ def api_one_occupancy():
         
         
         # Todays occupancy
-        today_date = datetime.datetime.today().date() - datetime.timedelta(days=1)
+        today_date = datetime.datetime.today().date()  # Debugging: - datetime.timedelta(days=0)
         occupancy_df_today  = occupancy_df[pd.to_datetime(occupancy_df['timestamp']).dt.date == today_date]['currentVisitors'].to_numpy()
-        occupancy_today = []
+        occupancy_today = [0]
         
         for i in range(len(occupancy_mean)):
             if i < len(occupancy_df_today):
@@ -96,7 +97,10 @@ def api_one_occupancy():
             else:
                 occupancy_today.append('NaN')
         
-        print(occupancy_today)
+        pd.set_option('display.max_rows', None)
+        print(occupancy_df)
+        print(occupancy_df[pd.to_datetime(occupancy_df['timestamp']).dt.date == today_date])
+        
         
         
         
