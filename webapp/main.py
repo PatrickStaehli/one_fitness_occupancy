@@ -60,7 +60,7 @@ def api_one_occupancy():
         
         
         # # Debugging: weekday = (datetime.datetime.today() - datetime.timedelta(days=0)).weekday()
-        weekday = datetime.datetime.today()
+        weekday = datetime.datetime.today().weekday()
         # Group by weekday
         occupancy_df_weekday = occupancy_df[occupancy_df['weekday'] == weekday]
         
