@@ -58,14 +58,15 @@ def api_one_occupancy():
         # Add Weekday column
         occupancy_df['weekday'] = [ts.weekday() for ind, ts in enumerate(occupancy_df['timestamp'])]
         
+        
         weekday = datetime.datetime.today().weekday()
         # Group by weekday
         occupancy_df_weekday = occupancy_df[occupancy_df['weekday'] == weekday]
         
-        
         occupancy_df_grouped_by_time = occupancy_df_weekday.groupby(['timestamp_round_time'])#['currentVisitors'].describe()
         occupancy_df_grouped_by_time_statistic = occupancy_df_grouped_by_time['currentVisitors'].describe()
         occupancy_df_grouped_by_time_statistic['std'] = occupancy_df_grouped_by_time_statistic['std'].fillna(0)
+        
         
         
         occupancy_mean = occupancy_df_grouped_by_time_statistic['mean'].to_numpy()
@@ -82,8 +83,25 @@ def api_one_occupancy():
         weekdays_list = occupancy_df_weekday['weekday'].tolist()
         labels = [round_times_list[i] + ";" + weekdays[weekdays_list[i]] for i in range(len(round_times_list))]
         
+        
+        
+        # Todays occupancy
+        today_date = datetime.datetime.today().date() - datetime.timedelta(days=1)
+        occupancy_df_today  = occupancy_df[pd.to_datetime(occupancy_df['timestamp']).dt.date == today_date]['currentVisitors'].to_numpy()
+        occupancy_today = []
+        
+        for i in range(len(occupancy_mean)):
+            if i < len(occupancy_df_today):
+                occupancy_today.append(int(occupancy_df_today[i]))
+            else:
+                occupancy_today.append('NaN')
+        
+        print(occupancy_today)
+        
+        
+        
         # Generate response json structure
-        occupancy_history = {labels[i]: {'occupancy': occupancy_mean[i], 'occupancy_std': occupancy_std[i], 'max_occupancy': int(max_occupancy[i])} for i in range(len(occupancy_mean))}
+        occupancy_history = {labels[i]: {'occupancy': occupancy_mean[i], 'occupancy_std': occupancy_std[i], 'max_occupancy': int(max_occupancy[i]), 'occupancy_today': occupancy_today[i]} for i in range(len(occupancy_mean))}
         centre_properties  = {'centre_properties': {'centre_id': centre_id, 'name': centre_name}, 'occupancy_history': occupancy_history}
         response = jsonify(centre_properties)
         
