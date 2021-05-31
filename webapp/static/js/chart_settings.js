@@ -264,7 +264,7 @@ function update_history_chart(centre_id){
 	weekday_index = weekdays[current_day];
 	
 	// Update the chart
-	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ centre_id  + "&&weekday=" + weekday_new_index, update_occupancy_plot);
+	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ centre_id  + "&&weekday=" + weekday_index, update_occupancy_plot);
 }
 
 
