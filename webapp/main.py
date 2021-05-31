@@ -27,12 +27,24 @@ def api_one_occupancy():
         The centre_id is passt via get request argument.
         '''
         
+       
+        request_arguments = {}
         # Read the get argument
-        centre_id = request.args.get('centre_id')
+        if (request.args.get('centre_id')):
+            request_arguments['centre_id'] = request.args.get('centre_id')
+        else:
+            request_arguments['centre_id'] = 117
+        if request.args.get('weekday'):
+            request_arguments['weekday'] = int(request.args.get('weekday'))
+        else:
+            request_arguments['weekday'] = 0
+            
+        print(request_arguments)
+        print(datetime.datetime.today().weekday())
         
         # Query the centre name for the specific centre id 
         cnxn = SQLiteConnector(path_to_database)
-        centre_prop = cnxn.query_data("SELECT * FROM centres WHERE centre_id = " + str(centre_id) ) #Returns (centre_id, centre_name)
+        centre_prop = cnxn.query_data("SELECT * FROM centres WHERE centre_id = " + str(request_arguments['centre_id']) ) #Returns (centre_id, centre_name)
         centre_name = centre_prop[0][1]
         cnxn.close_connection()
         
@@ -42,7 +54,7 @@ def api_one_occupancy():
         ts = datetime.date.today() - datetime.timedelta(days=360)
         start_time = ts.strftime("%Y-%m-%d")
         
-        query = """SELECT * FROM occupancy WHERE centre_id = """ + str(centre_id) + """ 
+        query = """SELECT * FROM occupancy WHERE centre_id = """ + str(request_arguments['centre_id']) + """ 
                                             AND timestamp >= '""" + start_time + """'
                                             AND maxVisitors > 0 
                                             ORDER BY id"""
@@ -58,9 +70,13 @@ def api_one_occupancy():
         # Add Weekday column
         occupancy_df['weekday'] = [ts.weekday() for ind, ts in enumerate(occupancy_df['timestamp'])]
         
+        weekday_today = datetime.datetime.today().weekday()
+        weekday_difference = weekday_today - request_arguments['weekday'] 
         
-        # # Debugging: weekday = (datetime.datetime.today() - datetime.timedelta(days=0)).weekday()
-        weekday = datetime.datetime.today().weekday()
+        # # Debugging:
+        weekday = (datetime.datetime.today() - datetime.timedelta(days=weekday_difference)).weekday()
+        #weekday = datetime.datetime.today().weekday()
+        
         # Group by weekday
         occupancy_df_weekday = occupancy_df[occupancy_df['weekday'] == weekday]
         
@@ -87,7 +103,8 @@ def api_one_occupancy():
         
         
         # Todays occupancy
-        today_date = datetime.datetime.today().date()  # Debugging: - datetime.timedelta(days=0)
+        #today_date = datetime.datetime.today().date()  # Debugging: - datetime.timedelta(days=0)
+        today_date = datetime.datetime.today().date() - datetime.timedelta(days=weekday_difference)
         occupancy_df_today  = occupancy_df[pd.to_datetime(occupancy_df['timestamp']).dt.date == today_date]['currentVisitors'].to_numpy()
         occupancy_today = [0]
         
@@ -98,15 +115,10 @@ def api_one_occupancy():
                 occupancy_today.append('NaN')
         
         pd.set_option('display.max_rows', None)
-        print(occupancy_df)
-        print(occupancy_df[pd.to_datetime(occupancy_df['timestamp']).dt.date == today_date])
-        
-        
-        
         
         # Generate response json structure
         occupancy_history = {labels[i]: {'occupancy': occupancy_mean[i], 'occupancy_std': occupancy_std[i], 'max_occupancy': int(max_occupancy[i]), 'occupancy_today': occupancy_today[i]} for i in range(len(occupancy_mean))}
-        centre_properties  = {'centre_properties': {'centre_id': centre_id, 'name': centre_name}, 'occupancy_history': occupancy_history}
+        centre_properties  = {'centre_properties': {'centre_id': request_arguments['centre_id'], 'name': centre_name}, 'occupancy_history': occupancy_history}
         response = jsonify(centre_properties)
         
         # Add header to the response to allow cross origin requests
