@@ -4,6 +4,15 @@ Requests the occupancy data and updates the line-chart.
 */
 
 
+var weekdays = {
+	'Montag': 0,
+	'Dienstag': 1,
+	'Mittwoch': 2,
+	'Donnerstag': 3,
+	'Freitag': 4,
+	'Samstag': 5,
+	'Sonntag': 6
+	};
 
 /*
 Defines the settings of the line chart with a filled area around the curve (e.g. to plot the standard deviation)
@@ -145,7 +154,7 @@ var config = {
 			}
 		  },
 		  autoSkip: true
-		},
+		}/*,
 		{
 		  id:'xAxis2',
 		  type:"category",
@@ -174,7 +183,7 @@ var config = {
 			}
 			
 		  }
-		}],
+		}*/],
 	  yAxes:[{
 		ticks:{
 		  beginAtZero:true
@@ -241,15 +250,44 @@ function update_occupancy_plot(data) {
 	
 	// Update the chart	
 	prediction_occupancy_linechart.update();
+	
+	// Update weekday
+	var day = prediction_occupancy_linechart.data.labels[0].split(";")[1];
+	document.getElementById('chart_weekday').innerHTML = day;
 }
 
 
 function update_history_chart(centre_id){
-	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ centre_id, update_occupancy_plot);
+	
+	// Grab the weekday that is currently displayed
+	current_day = document.getElementById('chart_weekday').innerHTML;
+	weekday_index = weekdays[current_day];
+	
+	// Update the chart
+	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ centre_id  + "&&weekday=" + weekday_new_index, update_occupancy_plot);
 }
 
+
+
+function change_weekday(direction){
+	// Changes the weekday of which the occupancy is displayed in the linechart
+	// Direction: 	-1  Tue -> Mon
+	// 				+1  Tue -> Wed
+	
+	current_day = document.getElementById('chart_weekday').innerHTML;
+	weekday_index = weekdays[current_day];
+	
+	weekday_new_index = weekday_index + direction;
+	
+	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116 + "&&weekday=" + weekday_new_index, update_occupancy_plot);
+}
+
+
 // On page load, load first centre
-$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116, update_occupancy_plot);
+var date_today = new Date();
+var weekday = date_today.getDay()
+weekday = weekday + (weekday == 0 ? 6:-1)
+$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116 + "&&weekday=" + weekday, update_occupancy_plot);
 
 
 
