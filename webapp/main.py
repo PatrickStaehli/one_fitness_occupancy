@@ -56,14 +56,12 @@ def api_one_occupancy():
         
         query = """SELECT * FROM occupancy WHERE centre_id = """ + str(request_arguments['centre_id']) + """ 
                                             AND timestamp >= '""" + start_time + """'
-                                            AND maxVisitors > 0 
                                             ORDER BY id"""
         cnxn = SQLiteConnector(path_to_database)
         
         # Create pandas dataframe
         occupancy_df = pd.read_sql_query(query, cnxn.connection)
         cnxn.close_connection()
-        
         # Convert timestamp to datetime and gmt+1
         occupancy_df['timestamp']= pd.to_datetime(occupancy_df['timestamp']) + datetime.timedelta(hours=2)
         occupancy_df['timestamp_round_time'] = pd.to_datetime(occupancy_df['timestamp'], format='%H:%M').dt.round('15min').dt.time
@@ -106,6 +104,7 @@ def api_one_occupancy():
         #today_date = datetime.datetime.today().date()  # Debugging: - datetime.timedelta(days=0)
         today_date = datetime.datetime.today().date() - datetime.timedelta(days=weekday_difference)
         occupancy_df_today  = occupancy_df[pd.to_datetime(occupancy_df['timestamp']).dt.date == today_date]['currentVisitors'].to_numpy()
+        
         occupancy_today = [0]
         
         for i in range(len(occupancy_mean)):
@@ -169,7 +168,7 @@ def one_occupancy():
         current_occupancy_percent = []
         for i in range(len(current_max_occupancy)):     
             if current_max_occupancy[i] == 0:
-                current_occupancy_percent.append('--')
+                current_occupancy_percent.append(current_occupancy[i])
             else:
                 current_occupancy_percent.append(str(int(np.round(current_occupancy[i]/current_max_occupancy[i]*100))) + '%')
                 
@@ -185,7 +184,7 @@ def one_occupancy():
                 else:
                     current_color.append(color_red)
             else:  
-                current_color.append(color_red)
+                current_color.append(color_green)
 
         
         # Reshape the update time 

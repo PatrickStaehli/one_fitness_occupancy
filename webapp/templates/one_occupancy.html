@@ -140,11 +140,11 @@
 		var options{{i+1}} = {
 		  type: 'doughnut',
 		  data: {
-		    labels: ["Besucher", "Verfügbar"],
+		    labels: ["Besucher", ""],
 		    datasets: [
 			   {
 	                label: '',
-	                data: [{{current_occupancy[i]}}, {{ current_max_occupancy[i] - current_occupancy[i] }}],
+	                data: [{{current_occupancy[i]}}, {{ 150 - current_occupancy[i] }}],
 	                backgroundColor: [
 	                    'rgba({{current_color[i][0]}}, {{current_color[i][1]}}, {{current_color[i][2]}}, 0.2)',
 	                    'rgba(220,220,220, 0.2)'
