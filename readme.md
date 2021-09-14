@@ -7,7 +7,7 @@ This project collects the centre occupancy of all [One Fitness Centres](https://
 # Project website
 The project runs on a Linux server that is hosted by Linode.
 
-[Project website](http://139.177.179.120/one_occupancy)
+[Project website](https://patrickstaehli.ch/one_occupancy)
 
 # Scraper
 The current occupancy is requested every 15 minutes from the url: `https://blfa-api.migros.ch/fp/api/center/<center_id>/currentuser/`.
