@@ -196,6 +196,11 @@ def one_occupancy():
         return render_template("one_occupancy.html", len = len(centre_names), centre_ids = centre_ids, centres = centre_names, current_occupancy_percent = current_occupancy_percent, current_occupancy = current_occupancy, current_max_occupancy = current_max_occupancy, current_color=current_color, last_update = last_update)
 
 
+@app.route("/one_occupancy/analysis")
+def one_occupancy_analysis():
+    return render_template("one_occupancy_analysis.html")
+
+
 @app.after_request
 def add_header(response):
     response.headers['Cache-Control'] = 'public, max-age=0'

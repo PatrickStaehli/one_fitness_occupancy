@@ -16,7 +16,7 @@
 		<!-- Linode --> 
         <link href="/one_occupancy/static/css/styles.css" rel="stylesheet" />
 		<!-- Local-->
-		<link href="static/css/styles.css" rel="stylesheet" />
+		<link href="../static/css/styles.css" rel="stylesheet" />
 		
     </head>
     <body id="page-top">
@@ -30,7 +30,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
-						<li class="nav-item"><a class="nav-link js-scroll-trigger" href="/one_occupancy/analysis">Auswertung</a></li>
+						<li class="nav-item"><a class="nav-link js-scroll-trigger" href="/one_occupancy">Auslastung</a></li>
                         <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#contact">About</a></li>
                     </ul>
                 </div>
@@ -38,57 +38,11 @@
         </nav>
         <!-- Masthead-->
         <header class="masthead">
-            <div class="container d-flex h-100 align-items-center">                
-					
-				<div class="row">
-					<div class="mx-auto text-center">
-						<h1 class="mx-auto my-0 text-uppercase">Auslastung</h1>
-						<h3 class="text-white-50 mx-auto mt-2 mb-5">One Fitnesszenter Zentralschweiz</h3>
-						<br>
+            <div class="container d-flex h-100 align-items-center" style="margin-top:-20vh">                
+				<div class="row w-100">
+					<div class="col-12" style="width:100%">
+						<div class='tableauPlaceholder' id='viz1634297708102' style='position: relative'><noscript><a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;On&#47;OneFittnessOccupancy&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='OneFittnessOccupancy&#47;Dashboard1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;On&#47;OneFittnessOccupancy&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1634297708102');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.minWidth='420px';vizElement.style.maxWidth='1920px';vizElement.style.width='100%';vizElement.style.minHeight='587px';vizElement.style.maxHeight='1107px';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.minWidth='420px';vizElement.style.maxWidth='1920px';vizElement.style.width='100%';vizElement.style.minHeight='587px';vizElement.style.maxHeight='1107px';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='727px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
 					</div>
-				
-                    <div class="col-12 mb-3 mb-md-0">
-                        <div class="card py-4 h-100">
-                            <div class="card-body text-center">
-                                <h4 class="text-uppercase m-0">Aktuelle Auslastung</h4>
-								<h5 id="last_update" class="text m-0">Letzte aktualisierung: {{last_update}}</h5>
-                                <hr class="my-4" />
-                            </div>
-								
-							<div class="row">
-							<!-- Create a Doughnut Chart for each centre -->
-							{%for i in range(len)%} 
-								<div class="col-lg-2 col-md-3 col-sm-4 col-6">
-									<div class="outer ml-4 mr-4"> 
-										<p class="location text-center">
-											{{centres[i]}}    
-										</p>
-										<canvas id="doughnut_chart_centre{{i+1}}" width="30%" height="30%"></canvas>
-										 <p class="percent text-center">
-										 {{current_occupancy_percent[i]}}
-										 </p>
-										 <a href = "#!" onclick="update_history_chart({{centre_ids[i]}});"> 
-										 <span class="hyperspan"></span>
-										 </a>
-									</div>
-								</div>
-							{%endfor%} 
-							</div>
-                        </div>
-                    </div>
-					
-                    <div class="col-12 mb-0 md-0 mt-4">
-                        <div class="card py-5">
-                            <div class="card-body text-center">
-                                <h4 id="centre_prediction_occupancy_title" class="text-uppercase m-0">Voraussichtliche Auslastung in </h4>
-                                <hr class="my-4" />
-								<div class="chart-container" style="position: relative; height:50vh; width:100%;">
-                                    <canvas id="centre_prediction_occupancy_linechart"></canvas>							
-									<p class="mb-4"><a href = "#!" onclick="change_weekday(-1)"> <i class="fas fa-angle-left"></i></a> <span class="chart_weekday" id="chart_weekday"></span> <a href = "#!" onclick="change_weekday(+1)"> <i class="fas fa-angle-right"></i></a></p>
-								</div>
-                            </div>
-                        </div>
-                    </div>
 				</div>	
             </div>
         </header>
@@ -123,7 +77,7 @@
         <!-- Linode -->
 		<script src="/one_occupancy/static/js/scripts.js"></script>
 		<!-- Local -->
-		<script src="static/js/scripts.js"></script>
+		<script src="../static/js/scripts.js"></script>
 		
 		<!-- Load the required resources -->
 	<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
@@ -134,57 +88,6 @@
 	<script src='/one_occupancy/static/js/chart_settings.js'></script>
 	<!-- Local-->
 	<script src='static/js/chart_settings.js'></script>
-	
-	<!-- Doughnut Chart-->
-	<script>
-	{%for i in range(len)%} 
-		var options{{i+1}} = {
-		  type: 'doughnut',
-		  data: {
-		    labels: ["Besucher", ""],
-		    datasets: [
-			   {
-	                label: '',
-	                data: [{{current_occupancy[i]}}, {{ 150 - current_occupancy[i] }}],
-	                backgroundColor: [
-	                    'rgba({{current_color[i][0]}}, {{current_color[i][1]}}, {{current_color[i][2]}}, 0.2)',
-	                    'rgba(220,220,220, 0.2)'
-	                ],
-	                borderColor: [
-	                    'rgba({{current_color[i][0]}}, {{current_color[i][1]}}, {{current_color[i][2]}}, 1)',
-	                    'rgba(220,220,220 ,1)'
-	                ],
-	                borderWidth: 1
-		            }
-				]
-		  },
-		  options: {
-		   			rotation: 1 * Math.PI,
-		            circumference: 1 * Math.PI,
-		            legend: {
-		                display: false
-		            },
-		            tooltip: {
-		                enabled: false
-		            },
-		            cutoutPercentage: 80,
-					responsive: true,
-					tooltips: {
-						backgroundColor: 'rgba(0, 0, 0, 1)'
-						
-					}
-		  }
-		}
-	{%endfor%} 
-	
-		
-	{%for i in range(len)%} 
-	    var ctx{{i+1}} = document.getElementById('doughnut_chart_centre{{i+1}}').getContext('2d');
-		new Chart(ctx{{i+1}}, options{{i+1}});
-	{%endfor%} 
-
-	</script>
-		
 	
 
 
