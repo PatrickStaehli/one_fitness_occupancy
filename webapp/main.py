@@ -62,9 +62,13 @@ def api_one_occupancy():
         # Create pandas dataframe
         occupancy_df = pd.read_sql_query(query, cnxn.connection)
         cnxn.close_connection()
-        # Convert timestamp to datetime and gmt+1
-        occupancy_df['timestamp']= pd.to_datetime(occupancy_df['timestamp']) + datetime.timedelta(hours=2)
-        occupancy_df['timestamp_round_time'] = pd.to_datetime(occupancy_df['timestamp'], format='%H:%M').dt.round('15min').dt.time
+        
+        #Convert to pd datetime
+        occupancy_df['timestamp'] = pd.to_datetime(occupancy_df['timestamp'])
+        # Convert uct to local time
+        occupancy_df['timestamp'] = occupancy_df['timestamp'].dt.tz_localize('utc', ambiguous='infer').dt.tz_convert('Europe/Vienna')
+        # Round time to 15 min so that it can be averaged over time
+        occupancy_df['timestamp_round_time'] = pd.to_datetime(occupancy_df['timestamp'], format='%H:%M').dt.round('15min', ambiguous='infer').dt.time
         # Add Weekday column
         occupancy_df['weekday'] = [ts.weekday() for ind, ts in enumerate(occupancy_df['timestamp'])]
         
