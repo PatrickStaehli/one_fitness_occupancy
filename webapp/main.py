@@ -6,7 +6,7 @@ import datetime
 import time
 
 from db_lib import SQLiteConnector
-
+from opening_hours import opening_hours
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -20,6 +20,56 @@ color_orange = [255,69,0]
 color_green = [50,205,50]
 
 path_to_database = "../database/centre_occupation.db"
+
+
+@app.route("/one_occupancy/api/one_training/daily_occupancy", methods=['GET'])
+def daily_occupancy():
+	cnxn = SQLiteConnector(path_to_database)
+	df = pd.read_sql('SELECT * FROM occupancy', cnxn.connection)
+	centres = cnxn.query_data('SELECT * FROM centres')
+	cnxn.close_connection()
+	
+	occupancy = pd.DataFrame()
+	for centre in centres:
+		print(centre[0])
+
+		centre_id = centre[0]
+		centre_name = centre[1]
+		
+		# Filter by centre index
+		df_centre = df[df['centre_id'] == centre_id]
+
+		# Make datetime
+		df_centre['timestamp'] = pd.to_datetime(df['timestamp'])
+
+		# Add day of week
+		df_centre['day_of_week'] = df_centre['timestamp'].dt.dayofweek
+
+		# Set timestamp as index
+		df_centre_dtindex = df_centre.set_index('timestamp')
+
+
+		# Filter Opening times
+		df_centre_dtindex_openingH = pd.DataFrame()
+		for day in range(7):
+			df_centre_opening_time_filtered_ = df_centre_dtindex[df_centre_dtindex['day_of_week'] == day].between_time(opening_hours[centre_id][day][0], opening_hours[centre_id][day][1])    
+			df_centre_dtindex_openingH = pd.concat([df_centre_dtindex_openingH, df_centre_opening_time_filtered_])
+
+
+		# Aggregate days
+		df_mean_day = df_centre_dtindex_openingH.resample('D', loffset='30Min30s').agg({'currentVisitors': 'mean', 'maxVisitors': 'mean'})
+		df_mean_day['centre_id'] =  [centre_id for i in range(len(df_mean_day))]
+		df_mean_day['centre_name'] = [centre_name for i in range(len(df_mean_day))]
+		# Add to df
+		occupancy = pd.concat([occupancy, df_mean_day])
+	
+	# Add day of week
+	occupancy['timestamp'] = occupancy.index
+	# Add day of week
+	occupancy['day_of_week'] = occupancy['timestamp'].dt.dayofweek
+	occupancy.index = range(len(occupancy))
+
+	return(occupancy.to_json(orient='records'))
 
 @app.route("/one_occupancy/api/one_training/occupancy", methods=['GET'])
 def api_one_occupancy():
