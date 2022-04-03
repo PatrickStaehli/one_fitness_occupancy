@@ -264,7 +264,7 @@ function update_history_chart(centre_id){
 	weekday_index = weekdays[current_day];
 	
 	// Update the chart
-	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ centre_id  + "&&weekday=" + weekday_index, update_occupancy_plot);
+	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ centre_id  + "&weekday=" + weekday_index, update_occupancy_plot);
 }
 
 
@@ -279,7 +279,7 @@ function change_weekday(direction){
 	
 	weekday_new_index = weekday_index + direction;
 	
-	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116 + "&&weekday=" + weekday_new_index, update_occupancy_plot);
+	$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116 + "&weekday=" + weekday_new_index, update_occupancy_plot);
 }
 
 
@@ -287,7 +287,7 @@ function change_weekday(direction){
 var date_today = new Date();
 var weekday = date_today.getDay()
 weekday = weekday + (weekday == 0 ? 6:-1)
-$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116 + "&&weekday=" + weekday, update_occupancy_plot);
+$.getJSON("one_occupancy/api/one_training/occupancy?centre_id="+ 116 + "&weekday=" + weekday, update_occupancy_plot);
 
 
 
